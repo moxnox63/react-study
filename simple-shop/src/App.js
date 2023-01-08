@@ -8,6 +8,7 @@ import { Routes, Route, Link, useNavigate, Outlet } from 'react-router-dom';
 import './App.css';
 import data from './data.js';
 import Detail from './routes/Detail.js';
+import EventPage from './routes/EventPage';
 
 // 실제로는 서버에서 가져온 데이터를 변수에 담아서 사용
 
@@ -17,6 +18,9 @@ function App() {
   let [shoes, setShoes] = useState(data); // data파일의 data를 가져와서 shoe라는 state로 사용
   let navigate = useNavigate(); // 페이지 이동을 도와주는 hook
 
+  // 사실 요 아래 return 부분이 웹 페이지의 전부...
+  // 나머지는 각각의 component로 존재
+  // 오호...
   return (
     <div className="App">
 
@@ -40,8 +44,10 @@ function App() {
           <Route path='member' element={<div>멤버임</div>} />
           <Route path='location' element={<div>위치정보임</div>} />
         </Route>
-
-
+        <Route path='/event' element={<EventPage></EventPage>}>
+          <Route path='one' element={<p>첫 주문시 양배추즙 서비스</p>}></Route>
+          <Route path='two' element={<p>생일기념 쿠폰받기</p>}></Route>
+        </Route>
         <Route path='*' element={<div>404 Page</div>} />
       </Routes>
 
