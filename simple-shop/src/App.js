@@ -2,8 +2,12 @@
 
 import { useState } from 'react';
 import { Container, Nav, Navbar } from 'react-bootstrap';
+import { Routes, Route, Link, useNavigate, Outlet } from 'react-router-dom';
+
+// Components imported
 import './App.css';
 import data from './data.js';
+import Detail from './routes/Detail.js';
 
 // 실제로는 서버에서 가져온 데이터를 변수에 담아서 사용
 
@@ -11,24 +15,48 @@ import data from './data.js';
 // App.js 는 쇼핑몰 메인 페이지
 function App() {
   let [shoes, setShoes] = useState(data); // data파일의 data를 가져와서 shoe라는 state로 사용
+  let navigate = useNavigate(); // 페이지 이동을 도와주는 hook
 
   return (
     <div className="App">
+
       <Navbar bg="dark" variant="dark">
         <Container>
           <Navbar.Brand href="#home">ShoeShop</Navbar.Brand>
           <Nav className="me-auto">
-            <Nav.Link href="#home">Home</Nav.Link>
-            <Nav.Link href="#features">Cart</Nav.Link>
+            <Nav.Link onClick={() => navigate('/')}>Home</Nav.Link>
+            <Nav.Link onClick={() => navigate('./detail')}>Detail</Nav.Link>
           </Nav>
         </Container>
       </Navbar>
 
-      <div className="main-bg"></div>
+      <Link to="/">Main</Link>
+      <Link to="/detail">Detail</Link>
 
+      <Routes>
+        <Route path='/' element={<Main shoes={shoes} />} />
+        <Route path='/detail' element={<Detail shoes={shoes} />} />
+        <Route path='/about' element={<About shoes={shoes} />}>
+          <Route path='member' element={<div>멤버임</div>} />
+          <Route path='location' element={<div>위치정보임</div>} />
+        </Route>
+
+
+        <Route path='*' element={<div>404 Page</div>} />
+      </Routes>
+
+    </div >
+  );
+}
+
+function Main(props) {
+  let shoes = props.shoes;
+
+  return (
+    <>
+      <div className="main-bg"></div>
       <div className="container">
         <div className="row">
-
           {
             shoes.map((a, i) => {
               return (
@@ -36,33 +64,19 @@ function App() {
               )
             })
           }
-
-          {/* <Card shoes={shoes[0]} i={0} />
-          <Card shoes={shoes[1]} i={1} />
-          <Card shoes={shoes[2]} i={2} /> */}
-
-          {/* <div className="col-md-4">
-            <img src='https://codingapple1.github.io/shop/shoes1.jpg' width="80%" />
-            <h4>{shoes[0].title}</h4>
-            <p>{shoes[0].content}</p>
-            <p>{shoes[0].price}</p>
-          </div>
-          <div className="col-md-4">
-            <img src='https://codingapple1.github.io/shop/shoes2.jpg' width="80%" />
-            <h4>{shoes[1].title}</h4>
-            <p>{shoes[1].content}</p>
-            <p>{shoes[1].price}</p>
-          </div>
-          <div className="col-md-4">
-            <img src='https://codingapple1.github.io/shop/shoes3.jpg' width="80%" />
-            <h4>{shoes[2].title}</h4>
-            <p>{shoes[2].content}</p>
-            <p>{shoes[2].price}</p>
-          </div> */}
         </div>
       </div>
-    </div >
-  );
+    </>
+  )
+}
+
+function About() {
+  return (
+    <div>
+      <h4>회사정보임</h4>
+      <Outlet></Outlet>
+    </div>
+  )
 }
 
 function Card(props) {
@@ -75,5 +89,4 @@ function Card(props) {
     </div>
   )
 }
-
 export default App;
