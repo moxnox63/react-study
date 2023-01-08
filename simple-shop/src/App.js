@@ -1,7 +1,7 @@
 /* eslint-disable */
 
 import { useState } from 'react';
-import { Container, Nav, Navbar } from 'react-bootstrap';
+import { Container, Nav, Navbar, Button } from 'react-bootstrap';
 import { Routes, Route, Link, useNavigate, Outlet } from 'react-router-dom';
 
 // Components imported
@@ -38,8 +38,10 @@ function App() {
       <Link to="/detail">Detail</Link>
 
       <Routes>
-        <Route path='/' element={<Main shoes={shoes} />} />
-        <Route path='/detail' element={<Detail shoes={shoes} />} />
+        <Route path='/' element={<Main shoes={shoes} setShoes={setShoes} />} />
+
+        <Route path='/detail/:id' element={<Detail shoes={shoes} />} />
+
         <Route path='/about' element={<About shoes={shoes} />}>
           <Route path='member' element={<div>멤버임</div>} />
           <Route path='location' element={<div>위치정보임</div>} />
@@ -57,7 +59,6 @@ function App() {
 
 function Main(props) {
   let shoes = props.shoes;
-
   return (
     <>
       <div className="main-bg"></div>
@@ -66,11 +67,16 @@ function Main(props) {
           {
             shoes.map((a, i) => {
               return (
-                <Card shoes={shoes[i]} i={i} />
+                <Card shoes={shoes[i]} i={i} key={i} />
               )
             })
           }
         </div>
+        <Button variant="outline-success" onClick={() => {
+          let copy = [...shoes];
+          copy.sort();
+          props.setShoes(copy);
+        }}>정렬</Button>
       </div>
     </>
   )
