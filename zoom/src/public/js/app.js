@@ -5,10 +5,16 @@ const muteBtn = document.getElementById("mute");
 const cameraBtn = document.getElementById("camera");
 const camerasSelect = document.getElementById("cameras");
 
+const call = document.getElementById("call");
+
+call.hidden = true;
+
 let myStream;
 // 음소거, 화면 켜짐 여부를 추적할 boolean 변수
 let muted = false;
 let cameraOff = false;
+let roomName;
+let myPeerConnection;
 
 async function getCameras() {
     try {
@@ -60,8 +66,6 @@ async function getMedia(deviceId) {
     }
 };
 
-getMedia();
-
 function handleMuteClick() {
     myStream
         .getAudioTracks()
@@ -91,8 +95,109 @@ function handleCameraClick() {
 // 여러 카메라 handling
 async function handleCameraChange() {
     await getMedia(camerasSelect.value);
+    if (myPeerConnection) {
+        const videoTrack = myStream.getVideoTracks()[0];
+        const videoSender = myPeerConnection
+            .getSenders() // sender는 peer로 보내진 media stream track을 컨트롤
+            .find(sender => sender.track.kind === "video");
+        videoSender.replaceTrack(videoTrack);
+    }
 }
 
 muteBtn.addEventListener("click", handleMuteClick);
 cameraBtn.addEventListener("click", handleCameraClick);
 camerasSelect.addEventListener("input", handleCameraChange);
+
+// Welcome Form (join a room)
+
+const welcome = document.getElementById("welcome");
+const welcomeForm = welcome.querySelector("form");
+
+// 기존의 방 입력 form은 hide하고
+// 회의방은 보이도록
+async function initCall() {
+    welcome.hidden = true;
+    call.hidden = false;
+    await getMedia();
+    makeConnection();
+}
+
+async function handleWelcomeSubmit(event) {
+    event.preventDefault();
+    const input = welcomeForm.querySelector("input");
+    await initCall();
+    socket.emit("join_room", input.value); // 회의방에 들어감
+    roomName = input.value;
+    input.value = "";
+}
+
+welcomeForm.addEventListener("submit", handleWelcomeSubmit);
+
+// offer를 주고 받기 위해서는 서버가 필요..
+// Socket Code
+// localdescription & remotedescription
+
+socket.on("welcome", async () => {
+    // 다른 브라우저가 참석할 수 있도록 '초대장'을 만드는 것..(흠..?)
+    const offer = await myPeerConnection.createOffer();
+    myPeerConnection.setLocalDescription(offer);
+    console.log("sent the offer");
+    socket.emit("offer", offer, roomName); // 다른 브라우저를 초대..roomName으로 초대
+});
+
+socket.on("offer", async (offer) => {
+    console.log("received the offer")
+    myPeerConnection.setRemoteDescription(offer);
+    const answer = await myPeerConnection.createAnswer();
+    myPeerConnection.setLocalDescription(answer); // answer로 응답
+    socket.emit("answer", answer, roomName);
+    console.log("sent the answer");
+});
+
+socket.on("answer", answer => {
+    console.log("received the answer");
+    myPeerConnection.setLocalDescription(answer);
+});
+
+// RTC code
+
+function makeConnection() {
+    myPeerConnection = new RTCPeerConnection({
+        // google의 stun 서버 사용...
+        // 하지만 실제 애플리케이션 제작을 위해서는 개인의 stun server 사용 필요
+        // stun 서버는 본인의 장치에 공용 주소를 알려주는 서버임
+        // 그래야 다른 네트워크에 있는 기기가 서로를 find
+        // 그니까...공용 주소를 알아내기 위해 stun server를 사용!!
+        iceServers: [
+            {
+                urls: [
+                    "stun:stun.l.google.com:19302",
+                    "stun:stun1.l.google.com:19302",
+                    "stun:stun2.l.google.com:19302",
+                    "stun:stun3.l.google.com:19302",
+                    "stun:stun4.l.google.com:19302",
+                ]
+            }
+        ]
+    });
+    myPeerConnection.addEventListener("icecandidate", handleIce);
+    myPeerConnection.addEventListener("addstream", handleAddStream);
+    myStream
+        .getTracks()
+        .forEach((track) => myPeerConnection.addTrack(track, myStream)); // video와 audio tracks를 connection에 입력
+}
+
+socket.on("ice", ice => {
+    console.log("received candidate");
+    myPeerConnection.addIceCandidate(ice);
+});
+
+function handleIce(data) {
+    console.log("sent candidate");
+    socket.emit("ice", data.candidate, roomName);
+};
+
+function handleAddStream(data) {
+    const peersFace = document.getElementById("peersFace");
+    peersFace.srcObject = data.stream;
+};

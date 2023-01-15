@@ -15,6 +15,21 @@ app.get("/*", (_, res) => res.redirect("/")); // 이상한 주소가 들어오�
 const httpServer = http.createServer(app);
 const wsServer = SocketIO(httpServer); // http 서버에 socketio 얹어주기
 
+wsServer.on("connection", socket => {
+    socket.on("join_room", (roomName) => {
+        socket.join(roomName);
+        socket.to(roomName).emit("welcome");
+    });
+    socket.on("offer", (offer, roomName) => {
+        socket.to(roomName).emit("offer", offer); // offer를 전송
+    });
+    socket.on("answer", (answer, roomName) => {
+        socket.to(roomName).emit("answer", answer);
+    });
+    socket.on("ice", (ice, roomName) => {
+        socket.to(roomName).emit("ice", ice);
+    })
+});
 
 const handleListen = () => console.log(`Listening on http://localhost:3000`)
 httpServer.listen(3000, handleListen);
