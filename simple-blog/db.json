@@ -2,8 +2,13 @@
   "posts": [
     {
       "title": "kossie",
-      "body": "new kossie",
-      "id": 4
+      "body": "hello",
+      "id": 1
+    },
+    {
+      "title": "123",
+      "body": "123",
+      "id": 2
     }
   ]
 }

@@ -3,14 +3,17 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Card from "../components/Card";
 import { Link } from "react-router-dom";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const ListPage = () => {
     const navigate = useNavigate();
     const [posts, setPosts] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     const getPosts = () => {
         axios.get("http://localhost:3001/posts").then((res) => {
             setPosts(res.data);
+            setLoading(false); // 응답이 오면 로딩은 false!
         })
     }
 
@@ -30,6 +33,29 @@ const ListPage = () => {
         getPosts();
     }, []);
 
+    const renderBlogList = () => {
+        if (loading) { // 로딩이 있으면 Loading Spinner를 보여주고
+            return <LoadingSpinner />
+        }
+
+        if (posts.length === 0) { // 만약 로딩이 끝났는데 보여줄게 없으면 안내문구
+            return (<div>No blog posts found</div>)
+        }
+
+        return posts.map(post => { // 그 외에는 목록을 보여주는 함수 'renderBlogList'
+            return (
+                <Card key={post.id} title={post.title} onClick={() => { navigate("/blogs/edit") }}>
+                    <div>
+                        <button className="btn btn-danger btn-sm"
+                            onClick={(e) => deleteBlog(e, post.id)} >
+                            Delete
+                        </button>
+                    </div>
+                </Card>
+            )
+        })
+    }
+
     return (
         <div>
             <div className="d-flex justify-content-between">
@@ -40,18 +66,7 @@ const ListPage = () => {
                     </Link>
                 </div>
             </div>
-            {posts.map(post => {
-                return (
-                    <Card key={post.id} title={post.title} onClick={() => { navigate("/blogs/edit") }}>
-                        <div>
-                            <button className="btn btn-danger btn-sm"
-                                onClick={(e) => deleteBlog(e, post.id)} >
-                                Delete
-                            </button>
-                        </div>
-                    </Card>
-                )
-            })}
+            {renderBlogList()}
         </div >
     )
 }
