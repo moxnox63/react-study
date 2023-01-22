@@ -13,7 +13,7 @@ function App() {
   return (
     <BrowserRouter>
       <NavBar />
-      <div className="container">
+      <div className="container mt-3">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/blogs" element={<ListPage />} />
