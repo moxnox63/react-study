@@ -2,6 +2,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import LoadingSpinner from "../components/LoadingSpinner";
+import { Link } from "react-router-dom";
 
 const ShowPage = () => {
     const { id } = useParams();
@@ -19,13 +20,29 @@ const ShowPage = () => {
         getPosts(id);
     }, []); // 여기 []는 의존성 배열!
 
+    const printDate = (timestamp) => {
+        return new Date(timestamp).toLocaleString();
+    }
+
     if (loading) {
         return <LoadingSpinner />
     }
 
     return (
         <div>
-            <h1>{post.title}</h1>
+            <div className="d-flex">
+                <h1 className="flex-grow-1">{post.title}</h1>
+                <div>
+                    <Link className="btn btn-primary"
+                        to={`/blogs/${id}/edit`}>
+                        Edit
+                    </Link>
+                </div>
+            </div>
+            <small className="text-muted">
+                Created at: {printDate(post.createdAt)}
+            </small>
+            <hr />
             <p>{post.body}</p>
         </div>
     );

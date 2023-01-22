@@ -44,7 +44,8 @@ const ListPage = () => {
 
         return posts.map(post => { // 그 외에는 목록을 보여주는 함수 'renderBlogList'
             return (
-                <Card key={post.id} title={post.title} onClick={() => { navigate("/blogs/edit") }}>
+                // 컴포넌트 누르면 해당 포스트 id로 이동 ***
+                <Card key={post.id} title={post.title} onClick={() => { navigate(`/blogs/${post.id}`) }}>
                     <div>
                         <button className="btn btn-danger btn-sm"
                             onClick={(e) => deleteBlog(e, post.id)} >

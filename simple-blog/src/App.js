@@ -21,7 +21,7 @@ function App() {
           <Route path="/blogs" element={<ListPage />} />
           <Route path="/blogs/:id" element={<ShowPage />} />
           <Route path="/blogs/create" element={<CreatePage />} />
-          <Route path="/blogs/edit" element={<EditPage />} />
+          <Route path="/blogs/:id/edit" element={<EditPage />} />
         </Routes>
       </div>
     </BrowserRouter >
