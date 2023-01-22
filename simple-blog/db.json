@@ -4,13 +4,15 @@
       "title": "vuejs",
       "body": "vuejs",
       "createdAt": 1674397928190,
-      "id": 3
+      "id": 3,
+      "publish": true
     },
     {
       "title": "redux",
       "body": "redux",
       "createdAt": 1674399816548,
-      "id": 4
+      "id": 4,
+      "publish": true
     }
   ]
 }
