@@ -1,72 +1,27 @@
-import { useState } from 'react';
-import axios from 'axios';
 import {
-  BrowserRouter as Router,
+  BrowserRouter,
   Routes,
   Route,
-  Link
 } from 'react-router-dom';
+import NavBar from './components/NavBar';
+import HomePage from './pages/HomePage';
+import CreatePage from './pages/CreatePage';
+import EditPage from './pages/EditPage';
+import ListPage from './pages/ListPage';
 
 function App() {
-  const [title, setTitle] = useState('');
-  const [body, setBody] = useState('');
-  const onSubmit = () => {
-    axios.post('http://localhost:3001/posts', {
-      title,
-      body
-    })
-  };
-
   return (
-    <Router>
-      <nav class="navbar navbar-dark bg-dark">
-        <div class="container">
-          <Link class="navbar-brand" to="/">Home</Link>
-          <ul class="navbar-nav">
-            <li class="nav-item">
-              <Link class="nav-link active" aria-current="page" to="/blogs">Blogs</Link>
-            </li>
-          </ul>
-        </div>
-      </nav>
-
-      <Routes>
-        <Route path="/" element={"Home Page"} />
-        <Route path="/blogs" element={
-          <div className="container">
-            <h1>Create a Blog Post</h1>
-            <div className="mb-3">
-              <label className="form-label">Title</label>
-              <input
-                className="form-control"
-                value={title}
-                onChange={(event) => {
-                  setTitle(event.target.value);
-                }}
-              />
-            </div>
-            <div className="mb-3">
-              <label className="form-label">Body</label>
-              <textarea
-                className="form-control"
-                value={body}
-                onChange={(event) => {
-                  setBody(event.target.value);
-                }}
-                rows="20"
-              />
-            </div>
-            <button
-              className="btn btn-primary"
-              onClick={onSubmit}
-            >
-              Post
-            </button>
-          </div>
-        } />
-      </Routes>
-    </Router >
-
+    <BrowserRouter>
+      <NavBar />
+      <div className="container">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/blogs" element={<ListPage />} />
+          <Route path="/blogs/create" element={<CreatePage />} />
+          <Route path="/blogs/edit" element={<EditPage />} />
+        </Routes>
+      </div>
+    </BrowserRouter >
   );
 }
 
